@@ -131,7 +131,7 @@ class Stock:
         return conservative_growth_rate
 
     def get_company_value(self):
-        a = [[None] * 2] * 11
+        a = [[None, None] for i in range(11)]
         total_npv_fcf = 0.0
 
         for year in range(1, 11):
