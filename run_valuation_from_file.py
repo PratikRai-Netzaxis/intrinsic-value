@@ -54,9 +54,21 @@ def run_valuation_for(companies, output_dir_name):
     def save_valuation_to_csv(rows, filename):
         S_P_500_stocks_dfc = pandas.DataFrame(rows, columns=ANALYSIS_COLUMNS)
 
-        S_P_500_stocks_dfc.to_csv(
-            f'./recommendations/{output_dir_name}/{CURRENT_DATE}/{filename}.csv', index=False,
-            encoding='utf-8')
+        outdir = f'./recommendations'
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
+
+        subdir = f'{outdir}/{output_dir_name}'
+        if not os.path.exists(subdir):
+            os.mkdir(subdir)
+
+        datedir = f'{outdir}/{output_dir_name}/{CURRENT_DATE}'
+        if not os.path.exists(datedir):
+            os.mkdir(datedir)
+
+        file = f'{datedir}/{filename}.csv'
+
+        S_P_500_stocks_dfc.to_csv(file, index=False, encoding='utf-8')
 
     all_company_valuation = []
     fair_value_companies = []
