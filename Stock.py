@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from yahoo_fin import stock_info as si
+import stock_info as si
 from yahoofinancials import YahooFinancials as YF
 import pandas
 
@@ -14,6 +14,7 @@ class Stock:
     def __init__(self, ticker, name):
         yf_stock = YF(ticker)
         yf_stats = si.get_stats(ticker)
+        key_statistics = yf_stock.get_key_statistics_data()
 
         self.ticker = ticker
 
@@ -29,8 +30,8 @@ class Stock:
 
         self.price = round(si.get_live_price(ticker), 2)
 
-        self.shares_outstanding = round(
-            yf_stock.get_num_shares_outstanding() / 1000000, 2)
+        self.shares_outstanding = float(
+            round(key_statistics[self.ticker]['sharesOutstanding'] / 1000000, 2))
 
         self.profit_margin = yf_stats["Value"][30]
 
@@ -44,8 +45,8 @@ class Stock:
 
         self.trailing_pe = self.get_trailing_pe(yf_stock)
 
-        self.price_per_book = round(yf_stock.get_current_price() / (
-            yf_stock.get_book_value() / yf_stock.get_num_shares_outstanding()), 2)
+        self.price_per_book = round(
+            key_statistics[self.ticker]['priceToBook'], 2)
 
         self.cash_and_cash_equivalents = self.get_cash_and_cash_equivalents(
             yf_stock)
@@ -86,12 +87,8 @@ class Stock:
             return -1
 
     def get_free_cash_flow(self):
-        cash_flow_data = si.get_cash_flow(self.ticker, yearly=False)
-
-        free_cash_flow = (pandas.DataFrame(cash_flow_data, index=['totalCashFromOperatingActivities']).sum(axis=1)[
-                          'totalCashFromOperatingActivities'] +
-                          pandas.DataFrame(cash_flow_data, index=['capitalExpenditures']).sum(axis=1)[
-                          'capitalExpenditures']) // 1000000
+        free_cash_flow = float(si.get_cash_flow_trailing(
+            self.ticker.replace(".", "-"))) / 1000000
         return free_cash_flow
 
     def get_growth_estimate_per_annum(self):
