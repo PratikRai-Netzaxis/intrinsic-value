@@ -2,16 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 import stock_info as si
 from yahoofinancials import YahooFinancials as YF
-import pandas
 
 
 class Stock:
     GROWTH_DECLINE_RATE = 0.05
-    DISCOUNT_RATE = 0.09
     VALUATION_LAST_FCF = 12
     MARGIN_OF_SAFETY = 0.30
 
-    def __init__(self, ticker, name):
+    def __init__(self, ticker, name, risk_free_return):
         yf_stock = YF(ticker)
         yf_stats = si.get_stats(ticker)
         key_statistics = yf_stock.get_key_statistics_data()
@@ -19,6 +17,10 @@ class Stock:
         self.ticker = ticker
 
         self.name = name
+
+        self.risk_free_return = risk_free_return
+
+        self.wacc = self.get_wacc(yf_stock)
 
         self.growth_estimate_per_annum = self.get_growth_estimate_per_annum()
 
@@ -127,6 +129,83 @@ class Stock:
                 self.growth_estimate_per_annum * (1 + self.MARGIN_OF_SAFETY) / 100)
         return conservative_growth_rate
 
+    def get_cost_of_equity(self, yf_stock):
+        market_risk_premium = 7.5
+        beta = yf_stock.get_beta()
+        return round(self.risk_free_return + (beta * market_risk_premium), 2)
+
+    def get_last_annual_balance_sheet(self, yf_stock):
+        balance_sheet = list(yf_stock.get_financial_stmts('annual', 'balance')[
+            "balanceSheetHistory"][self.ticker][0].values())[0]
+        return balance_sheet
+
+    def get_last_quarter_balance_sheet(self, yf_stock):
+        balance_sheet = list(yf_stock.get_financial_stmts('quarterly', 'balance')[
+            "balanceSheetHistoryQuarterly"][self.ticker][0].values())[0]
+        return balance_sheet
+
+    def get_last_annual_income_stmt(self, yf_stock):
+        income_stmt = list(yf_stock.get_financial_stmts('annual', 'income')[
+            "incomeStatementHistory"][self.ticker][0].values())[0]
+        return income_stmt
+
+    def get_weighted_avg_cost_of_equity(self, yf_stock):
+        last_quarter_balance_sheet = self.get_last_quarter_balance_sheet(
+            yf_stock)
+
+        cost_of_equity = self.get_cost_of_equity(yf_stock)
+
+        current_total_debt = last_quarter_balance_sheet["shortLongTermDebt"] + \
+            last_quarter_balance_sheet["longTermDebt"]
+
+        current_total_equity = last_quarter_balance_sheet["totalStockholderEquity"]
+
+        sum_total_equity_total_debt = current_total_equity + current_total_debt
+
+        weighted_avg_cost_of_equity = (
+            current_total_equity/sum_total_equity_total_debt) * cost_of_equity
+
+        return weighted_avg_cost_of_equity
+
+    def get_weighted_avg_cost_of_debt(self, yf_stock):
+        last_quarter_balance_sheet = self.get_last_quarter_balance_sheet(
+            yf_stock)
+        last_annual_income_stmt = self.get_last_annual_income_stmt(yf_stock)
+        last_annual_balance_sheet = self.get_last_annual_balance_sheet(
+            yf_stock)
+
+        current_total_debt = last_quarter_balance_sheet["shortLongTermDebt"] + \
+            last_quarter_balance_sheet["longTermDebt"]
+
+        last_annual_total_debt = last_annual_balance_sheet["shortLongTermDebt"] + \
+            last_annual_balance_sheet["longTermDebt"]
+
+        current_total_equity = last_quarter_balance_sheet["totalStockholderEquity"]
+
+        sum_current_total_equity_total_debt = current_total_equity + current_total_debt
+
+        cost_of_debt = last_annual_income_stmt["incomeTaxExpense"] / \
+            last_annual_total_debt
+
+        tax_rate = yf_stock.get_income_tax_expense() / yf_stock.get_income_before_tax()
+
+        weighted_avg_cost_of_debt = (
+            current_total_debt/sum_current_total_equity_total_debt) * cost_of_debt * (1 - tax_rate)
+
+        return weighted_avg_cost_of_debt
+
+    def get_wacc(self, yf_stock):
+        weighted_avg_cost_of_equity = self.get_weighted_avg_cost_of_equity(
+            yf_stock)
+
+        weighted_avg_cost_of_debt = self.get_weighted_avg_cost_of_debt(
+            yf_stock)
+
+        wacc = round((weighted_avg_cost_of_equity +
+                      weighted_avg_cost_of_debt) / 100, 2)
+
+        return wacc
+
     def get_company_value(self):
         a = [[None, None] for i in range(11)]
         total_npv_fcf = 0.0
@@ -136,7 +215,7 @@ class Stock:
                 fcf_growth_rate = round(
                     self.free_cash_flow * (1 + self.conservative_growth_rate), 2)
                 npv_fcf = round(fcf_growth_rate /
-                                (1 + self.DISCOUNT_RATE) ** year, 2)
+                                (1 + self.wacc) ** year, 2)
                 a[year][0] = fcf_growth_rate
                 a[year][1] = npv_fcf
                 total_npv_fcf += npv_fcf
@@ -144,7 +223,7 @@ class Stock:
                 fcf_growth_rate = round(
                     a[year - 1][0] * (1 + self.conservative_growth_rate * ((1 - self.GROWTH_DECLINE_RATE) ** (year - 1))), 2)
                 npv_fcf = round(fcf_growth_rate /
-                                (1 + self.DISCOUNT_RATE) ** year, 2)
+                                (1 + self.wacc) ** year, 2)
                 a[year][0] = fcf_growth_rate
                 a[year][1] = npv_fcf
                 total_npv_fcf += npv_fcf
