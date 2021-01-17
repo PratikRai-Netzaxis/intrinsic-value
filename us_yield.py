@@ -30,4 +30,4 @@ def get_10y_us_bond_yield():
 
     if os.path.exists(file_location):
         file = open(file_location, 'r')
-        return file.read()
+        return float(file.read())
