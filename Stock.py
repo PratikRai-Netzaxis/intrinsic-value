@@ -4,6 +4,7 @@ import stock_info as si
 from yahoofinancials import YahooFinancials as YF
 import json
 import re
+import math
 
 
 class Stock:
@@ -21,6 +22,8 @@ class Stock:
         self.name = name
 
         self.risk_free_return = risk_free_return
+
+        self.beta = self.get_beta(yf_stock, yf_stats)
 
         self.wacc = self.get_wacc(yf_stock)
 
@@ -63,6 +66,16 @@ class Stock:
 
         self.trailing_pe_pb_multiple = round(
             self.trailing_pe * self.price_per_book, 2)
+
+    def get_beta(self, yf_stock, yf_stats):
+        yf_stats_beta = yf_stats["Value"][0]
+        yf_stock_beta = yf_stock.get_beta()
+        if (type(yf_stats_beta) == int or type(yf_stats_beta) == float and not math.isnan(yf_stats_beta)):
+            return yf_stats_beta
+        elif (type(yf_stock_beta) == int or type(yf_stock_beta) == float and not math.isnan(yf_stock_beta)):
+            return yf_stock_beta
+        else:
+            return 1
 
     def get_first_quarter_key(self, yf_stock):
         balance_sheet_data_qt = yf_stock.get_financial_stmts(
@@ -130,8 +143,7 @@ class Stock:
 
     def get_cost_of_equity(self, yf_stock):
         market_risk_premium = 7.5
-        beta = yf_stock.get_beta()
-        return round(self.risk_free_return + (beta * market_risk_premium), 2)
+        return round(self.risk_free_return + (self.beta * market_risk_premium), 2)
 
     def get_last_annual_balance_sheet(self, yf_stock):
         balance_sheet = list(yf_stock.get_financial_stmts('annual', 'balance')[
