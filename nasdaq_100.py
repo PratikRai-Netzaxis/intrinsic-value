@@ -16,6 +16,7 @@ data_rows = components_table[0].find("tbody").find_all("tr")[1:]
 rows = []
 for row in range(len(data_rows)):
     stock = list(filter(None, data_rows[row].text.split("\n")))
+    stock[0], stock[1] = stock[1], stock[0]
     rows.append(stock)
 Nasdaq_100_stocks = pd.DataFrame(rows, columns=components_headers)
-Nasdaq_100_stocks.to_csv(r"/users/akarapetsas/Desktop/value_investing/Nasdaq_100.csv", index=False, encoding='utf-8')
+Nasdaq_100_stocks.to_csv(r"./data/Nasdaq_100.csv", index=False, encoding='utf-8')
