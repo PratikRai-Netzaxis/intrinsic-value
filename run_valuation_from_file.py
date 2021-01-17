@@ -6,7 +6,7 @@ import os
 from Stock import Stock
 
 
-def run_valuation_for(companies, output_dir_name):
+def run_valuation_for(companies, output_dir_name, ten_year_us_bond_yield):
     CURRENT_DATE = datetime.datetime.today().strftime('%d-%b-%Y')
     ANALYSIS_COLUMNS = ['TICKER',
                         ' SECURITY ',
@@ -82,7 +82,7 @@ def run_valuation_for(companies, output_dir_name):
                 ticker = reader_row.__getitem__(0).replace(".", "-")
                 company_name = reader_row.__getitem__(1)
 
-                stock = Stock(ticker, company_name)
+                stock = Stock(ticker, company_name, ten_year_us_bond_yield)
 
                 print_stock_valuation(stock)
 
