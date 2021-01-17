@@ -154,8 +154,8 @@ class Stock:
 
         cost_of_equity = self.get_cost_of_equity(yf_stock)
 
-        current_total_debt = last_quarter_balance_sheet["shortLongTermDebt"] + \
-            last_quarter_balance_sheet["longTermDebt"]
+        current_total_debt = (last_quarter_balance_sheet["shortLongTermDebt"] if "shortLongTermDebt" in last_quarter_balance_sheet else 0) + (
+            last_quarter_balance_sheet["longTermDebt"] if "longTermDebt" in last_quarter_balance_sheet else 0)
 
         current_total_equity = last_quarter_balance_sheet["totalStockholderEquity"]
 
@@ -173,11 +173,11 @@ class Stock:
         last_annual_balance_sheet = self.get_last_annual_balance_sheet(
             yf_stock)
 
-        current_total_debt = last_quarter_balance_sheet["shortLongTermDebt"] + \
-            last_quarter_balance_sheet["longTermDebt"]
+        current_total_debt = (last_quarter_balance_sheet["shortLongTermDebt"] if "shortLongTermDebt" in last_quarter_balance_sheet else 0) + (
+            last_quarter_balance_sheet["longTermDebt"] if "longTermDebt" in last_quarter_balance_sheet else 0)
 
-        last_annual_total_debt = last_annual_balance_sheet["shortLongTermDebt"] + \
-            last_annual_balance_sheet["longTermDebt"]
+        last_annual_total_debt = (last_annual_balance_sheet["shortLongTermDebt"] if "shortLongTermDebt" in last_annual_balance_sheet else 0) + (
+            last_annual_balance_sheet["longTermDebt"] if "longTermDebt" in last_annual_balance_sheet else 0)
 
         current_total_equity = last_quarter_balance_sheet["totalStockholderEquity"]
 
