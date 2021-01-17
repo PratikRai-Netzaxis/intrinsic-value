@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import stock_info as si
 from yahoofinancials import YahooFinancials as YF
+import json
+import re
 
 
 class Stock:
@@ -97,15 +99,12 @@ class Stock:
         url_analyst_predictions = f'https://finance.yahoo.com/quote/{self.ticker}/analysis?ltr=1'
         r_analyst_predictions = requests.get(url_analyst_predictions)
         r_analyst_predictions_html = r_analyst_predictions.text
-        soup_analyst_predictions = BeautifulSoup(
-            r_analyst_predictions_html, 'html.parser')
-
-        growth_estimate_per_annum = 0.0
-        growth_estimate_in_response = soup_analyst_predictions.find(
-            'td', attrs={'data-reactid': '427'})
-        if growth_estimate_in_response:
-            growth_estimate_per_annum = float(
-                growth_estimate_in_response.contents[0].replace('%', ''))
+        data = json.loads(re.search('root\.App\.main\s*=\s*(.*);',
+                                    r_analyst_predictions_html).group(1))
+        field = [t for t in data["context"]["dispatcher"]["stores"]["QuoteSummaryStore"]["earningsTrend"]["trend"] if
+                 t["period"] == "+5y"][0]
+        growth_estimate_per_annum = float(
+            field["growth"]["fmt"].replace('%', ''))
         return growth_estimate_per_annum
 
     def get_recommendation_rating(self):
