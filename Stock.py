@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 import stock_info as si
 from yahoofinancials import YahooFinancials as YF
 import json
@@ -157,12 +156,12 @@ class Stock:
         current_total_debt = (last_quarter_balance_sheet["shortLongTermDebt"] if "shortLongTermDebt" in last_quarter_balance_sheet else 0) + (
             last_quarter_balance_sheet["longTermDebt"] if "longTermDebt" in last_quarter_balance_sheet else 0)
 
-        current_total_equity = last_quarter_balance_sheet["totalStockholderEquity"]
+        market_cap = yf_stock.get_market_cap()
 
-        sum_total_equity_total_debt = current_total_equity + current_total_debt
+        company_value = market_cap + current_total_debt
 
         weighted_avg_cost_of_equity = (
-            current_total_equity/sum_total_equity_total_debt) * cost_of_equity
+            market_cap/company_value) * cost_of_equity
 
         return weighted_avg_cost_of_equity
 
@@ -179,17 +178,17 @@ class Stock:
         last_annual_total_debt = (last_annual_balance_sheet["shortLongTermDebt"] if "shortLongTermDebt" in last_annual_balance_sheet else 0) + (
             last_annual_balance_sheet["longTermDebt"] if "longTermDebt" in last_annual_balance_sheet else 0)
 
-        current_total_equity = last_quarter_balance_sheet["totalStockholderEquity"]
-
-        sum_current_total_equity_total_debt = current_total_equity + current_total_debt
-
         cost_of_debt = last_annual_income_stmt["incomeTaxExpense"] / \
             last_annual_total_debt
 
         tax_rate = yf_stock.get_income_tax_expense() / yf_stock.get_income_before_tax()
 
+        market_cap_int = yf_stock.get_market_cap()
+
+        company_value = market_cap_int + current_total_debt
+
         weighted_avg_cost_of_debt = (
-            current_total_debt/sum_current_total_equity_total_debt) * cost_of_debt * (1 - tax_rate)
+            current_total_debt/company_value) * cost_of_debt * (1 - tax_rate)
 
         return weighted_avg_cost_of_debt
 
