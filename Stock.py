@@ -50,13 +50,15 @@ class Stock:
 
         self.quarterly_revenue_growth_yoy = yf_stats["Value"][36]
 
+        self.cash = yf_stats["Value"][51]
+
         self.trailing_pe = self.get_trailing_pe(yf_stock)
 
         self.price_per_book = round(
             key_statistics[self.ticker]['priceToBook'], 2)
 
-        self.cash_and_cash_equivalents = self.get_cash_and_cash_equivalents(
-            yf_stock)
+        self.cash_and_cash_equivalents = float(
+            re.sub("[^\d\.\-]", "", self.cash)) * 1000
 
         self.total_liabilities = self.get_total_liabilities(yf_stock)
 
