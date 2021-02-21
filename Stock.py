@@ -90,15 +90,12 @@ class Stock:
         return first_quarter, key
 
     def get_total_liabilities(self, yf_stock):
-        first_quarter, key = self.get_first_quarter_key(yf_stock)
-        total_liabilities_string = first_quarter[key]["totalLiab"]
-        return float(total_liabilities_string) / 1000000
+        balance_sheet = yf_stock.get_financial_stmts('quarterly', 'balance')
+        balance_sheet_last_quarter = list(
+            balance_sheet['balanceSheetHistoryQuarterly'][self.ticker][0].values())[0]
+        totalLiab = balance_sheet_last_quarter['totalLiab']
 
-    def get_cash_and_cash_equivalents(self, yf_stock):
-        first_quarter, key = self.get_first_quarter_key(yf_stock)
-        cash_and_cash_equivalents_string = first_quarter[key]["cash"]
-
-        return float(cash_and_cash_equivalents_string) / 1000000
+        return float(totalLiab) / 1000000
 
     def get_trailing_pe(self, yf_stock):
         if yf_stock.get_pe_ratio() is not None:
