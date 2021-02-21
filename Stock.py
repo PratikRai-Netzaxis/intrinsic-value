@@ -195,8 +195,8 @@ class Stock:
 
         sum_current_total_equity_total_debt = current_total_equity + current_total_debt
 
-        cost_of_debt = last_annual_income_stmt["incomeTaxExpense"] / \
-            last_annual_total_debt
+        cost_of_debt = last_annual_income_stmt["incomeTaxExpense"] / (
+            last_annual_total_debt or 1)
 
         tax_rate = yf_stock.get_income_tax_expense() / yf_stock.get_income_before_tax()
 
