@@ -48,14 +48,15 @@ class Stock:
 
         self.return_on_equity = yf_stats["Value"][33]
 
+        self.book_value = yf_stats["Value"][56]
+
         self.quarterly_revenue_growth_yoy = yf_stats["Value"][36]
 
         self.cash = yf_stats["Value"][51]
 
         self.trailing_pe = self.get_trailing_pe(yf_stock)
 
-        self.price_per_book = round(
-            key_statistics[self.ticker]['priceToBook'], 2)
+        self.price_per_book = round(self.price / float(self.book_value), 2)
 
         self.cash_and_cash_equivalents = float(
             re.sub("[^\d\.\-]", "", self.cash)) * 1000
