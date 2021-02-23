@@ -48,15 +48,18 @@ class Stock:
 
         self.return_on_equity = yf_stats["Value"][33]
 
+        self.book_value = yf_stats["Value"][56]
+
         self.quarterly_revenue_growth_yoy = yf_stats["Value"][36]
+
+        self.cash = yf_stats["Value"][51]
 
         self.trailing_pe = self.get_trailing_pe(yf_stock)
 
-        self.price_per_book = round(
-            key_statistics[self.ticker]['priceToBook'], 2)
+        self.price_per_book = round(self.price / float(self.book_value), 2)
 
-        self.cash_and_cash_equivalents = self.get_cash_and_cash_equivalents(
-            yf_stock)
+        self.cash_and_cash_equivalents = float(
+            re.sub("[^\d\.\-]", "", self.cash)) * 1000
 
         self.total_liabilities = self.get_total_liabilities(yf_stock)
 
@@ -87,15 +90,12 @@ class Stock:
         return first_quarter, key
 
     def get_total_liabilities(self, yf_stock):
-        first_quarter, key = self.get_first_quarter_key(yf_stock)
-        total_liabilities_string = first_quarter[key]["totalLiab"]
-        return float(total_liabilities_string) / 1000000
+        balance_sheet = yf_stock.get_financial_stmts('quarterly', 'balance')
+        balance_sheet_last_quarter = list(
+            balance_sheet['balanceSheetHistoryQuarterly'][self.ticker][0].values())[0]
+        totalLiab = balance_sheet_last_quarter['totalLiab']
 
-    def get_cash_and_cash_equivalents(self, yf_stock):
-        first_quarter, key = self.get_first_quarter_key(yf_stock)
-        cash_and_cash_equivalents_string = first_quarter[key]["cash"]
-
-        return float(cash_and_cash_equivalents_string) / 1000000
+        return float(totalLiab) / 1000000
 
     def get_trailing_pe(self, yf_stock):
         if yf_stock.get_pe_ratio() is not None:
@@ -195,8 +195,8 @@ class Stock:
 
         sum_current_total_equity_total_debt = current_total_equity + current_total_debt
 
-        cost_of_debt = last_annual_income_stmt["incomeTaxExpense"] / \
-            last_annual_total_debt
+        cost_of_debt = last_annual_income_stmt["incomeTaxExpense"] / (
+            last_annual_total_debt or 1)
 
         tax_rate = yf_stock.get_income_tax_expense() / yf_stock.get_income_before_tax()
 
