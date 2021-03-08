@@ -1,6 +1,8 @@
-# Function dependencies, for example:
-# package>=version
-
-google-cloud
-google-cloud-bigquery
-pandas
+requests==2.24.0
+pytz==2020.1
+pandas==1.1.0
+datapackage==1.15.1
+requests_html==0.10.0
+beautifulsoup4==4.9.3
+feedparser==6.0.2
+bs4
