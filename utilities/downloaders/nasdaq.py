@@ -19,4 +19,5 @@ for row in range(len(data_rows)):
     stock[0], stock[1] = stock[1], stock[0]
     rows.append(stock)
 Nasdaq_100_stocks = pd.DataFrame(rows, columns=components_headers)
-Nasdaq_100_stocks.to_csv(r"./data/Nasdaq_100.csv", index=False, encoding='utf-8')
+Nasdaq_100_stocks.to_csv(r"../../nasdaq/nasdaq_companies.csv",
+                         index=False, encoding='utf-8')

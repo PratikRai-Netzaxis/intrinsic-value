@@ -8,7 +8,7 @@ def save_10y_us_bond_yield():
         package = Package(
             'https://datahub.io/core/bond-yields-us-10y/datapackage.json')
 
-        file = open("./data/10y_us_bond_yield.txt", "w")
+        file = open("../10y_us_bond_yield.txt", "w")
         for resource in package.resources:
             if resource.descriptor['datahub']['type'] == 'derived/csv':
                 all_data = resource.read()
@@ -26,7 +26,7 @@ def save_10y_us_bond_yield():
 
 
 def get_10y_us_bond_yield():
-    file_location = './data/10y_us_bond_yield.txt'
+    file_location = '../10y_us_bond_yield.txt'
 
     if os.path.exists(file_location):
         file = open(file_location, 'r')
