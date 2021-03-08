@@ -1,5 +1,5 @@
 from Stock import Stock
-from us_yield import get_10y_us_bond_yield
+from utilities.downloaders.us_yield import get_10y_us_bond_yield
 
 ticker = 'AAPL'
 company_name = 'Apple inc.'

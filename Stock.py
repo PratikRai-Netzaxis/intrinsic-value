@@ -1,6 +1,5 @@
 import requests
-from bs4 import BeautifulSoup
-import stock_info as si
+import yahoo_fin.stock_info as si
 from yahoofinancials import YahooFinancials as YF
 import json
 import re

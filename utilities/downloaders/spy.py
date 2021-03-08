@@ -18,4 +18,5 @@ for row in range(len(data_rows)):
     rows.append(stock)
 S_P_500_stocks = pd.DataFrame(rows, columns=components_headers)
 S_P_500_stocks.drop("SEC filings", inplace=True, axis=1)
-S_P_500_stocks.to_csv(r"/users/akarapetsas/Desktop/value_investing/SP500stocks.csv", index=False, encoding='utf-8')
+S_P_500_stocks.to_csv(r"../../spy/spy_companies.csv",
+                      index=False, encoding='utf-8')
