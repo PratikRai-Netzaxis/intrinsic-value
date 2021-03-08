@@ -21,6 +21,3 @@ def run_single_company_valuation():
     stock = Stock(ticker, company_name, risk_free_return)
 
     print_stock_valuation(stock)
-
-
-run_single_company_valuation()
