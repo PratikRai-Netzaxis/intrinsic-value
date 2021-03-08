@@ -1,12 +1,6 @@
 from Stock import Stock
 from utilities.downloaders.us_yield import get_10y_us_bond_yield
 
-ticker = 'AAPL'
-company_name = 'Apple inc.'
-risk_free_return = get_10y_us_bond_yield()
-
-stock = Stock(ticker, company_name, risk_free_return)
-
 
 def print_stock_valuation(stock):
     message = f"""
@@ -19,4 +13,14 @@ def print_stock_valuation(stock):
     print(message)
 
 
-print_stock_valuation(stock)
+def run_single_company_valuation():
+    ticker = 'AAPL'
+    company_name = 'Apple inc.'
+    risk_free_return = get_10y_us_bond_yield()
+
+    stock = Stock(ticker, company_name, risk_free_return)
+
+    print_stock_valuation(stock)
+
+
+run_single_company_valuation()

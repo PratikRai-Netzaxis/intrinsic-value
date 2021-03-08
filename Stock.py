@@ -47,11 +47,11 @@ class Stock:
 
         self.return_on_equity = yf_stats["Value"][33]
 
-        self.book_value = yf_stats["Value"][56]
+        self.book_value = yf_stats["Value"][47]
 
         self.quarterly_revenue_growth_yoy = yf_stats["Value"][36]
 
-        self.cash = yf_stats["Value"][51]
+        self.cash = yf_stats["Value"][42]
 
         self.trailing_pe = self.get_trailing_pe(yf_stock)
 
