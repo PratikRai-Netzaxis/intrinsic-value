@@ -69,6 +69,16 @@ class Stock:
         self.trailing_pe_pb_multiple = round(
             self.trailing_pe * self.price_per_book, 2)
 
+        self.intrinsic_value_category = self.get_intrinsic_value_category()
+
+    def get_intrinsic_value_category(self):
+        if self.potential_upside > 0.0 and self.trailing_pe_pb_multiple <= 25 and self.conservative_growth_rate <= 3.00:
+            return "Good"
+        elif self.potential_upside > 0.0 or self.trailing_pe_pb_multiple <= 25:
+            return "Fair"
+        else:
+            return ""
+
     def get_beta(self, yf_stock, yf_stats):
         yf_stats_beta = yf_stats["Value"][0]
         yf_stock_beta = yf_stock.get_beta()
