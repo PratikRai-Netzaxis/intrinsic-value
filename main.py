@@ -1,9 +1,14 @@
-from run_valuation_from_file import run_valuation_for
+# from run_valuation_from_file import run_valuation_for
 from utilities.downloaders.us_yield import get_10y_us_bond_yield
 import os
 from google.cloud import bigquery
 import logging
 import traceback
+from Stock import Stock
+import datetime
+
+
+date = str(datetime.now().date())
 
 
 def try_catch_log(wrapped_func):
@@ -33,12 +38,29 @@ def load_data_to_bigquery(rows):
         print("Encountered errors while inserting rows: {}".format(errors))
 
 
+def create_stock_details_row(stock):
+    return {
+        "name": stock.name,
+        "ticker": stock.ticker,
+        "current_value": stock.price,
+        "intrinsic_value": stock.intrinsic_value,
+        "date": date, "sector": "", "index": 'Nasdaq',
+        "intrinsic_value_category": stock.intrinsic_value_category
+    }
+
+
 @try_catch_log
 def run_nasdaq_valuation(request):
-    INDEX_NAME = 'Nasdaq'
-    NASDAQ_COMPANIES = './nasdaq_companies.csv'
+    # INDEX_NAME = 'Nasdaq'
+    # NASDAQ_COMPANIES = './nasdaq_companies.csv'
     TEN_Y_US_BOND_YIELD = get_10y_us_bond_yield()
 
-    rows = run_valuation_for(NASDAQ_COMPANIES, INDEX_NAME, TEN_Y_US_BOND_YIELD)
+    rows = []
+
+    stock = Stock('AAPL', 'Apple inc.', TEN_Y_US_BOND_YIELD)
+
+    row = create_stock_details_row(stock)
+
+    rows.append(row)
 
     load_data_to_bigquery(rows)
