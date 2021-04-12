@@ -4,3 +4,4 @@
 google-cloud
 google-cloud-bigquery
 pandas
+requests_html

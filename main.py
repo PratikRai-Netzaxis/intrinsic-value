@@ -49,7 +49,7 @@ def create_stock_details_row(stock):
     }
 
 
-@try_catch_log
+# @try_catch_log
 def run_nasdaq_valuation(request):
     # INDEX_NAME = 'Nasdaq'
     # NASDAQ_COMPANIES = './nasdaq_companies.csv'
@@ -64,3 +64,5 @@ def run_nasdaq_valuation(request):
     rows.append(row)
 
     load_data_to_bigquery(rows)
+
+    print('valuation saved')
